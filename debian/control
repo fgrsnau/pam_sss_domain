@@ -1,7 +1,7 @@
 Source: libpam-sss-domain
 Priority: optional
 Maintainer: Stefan Haller <stefan.haller@agdsn.de>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9), libpam-dev
 Standards-Version: 3.9.8
 Section: utils
 Homepage: https://github.com/fgrsnau/pam_sss_domain
