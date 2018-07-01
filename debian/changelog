@@ -1,0 +1,5 @@
+libpam-sss-domain (0.1-1) unstable; urgency=medium
+
+  * Initial release
+
+ -- Stefan Haller <stefan.haller@agdsn.de>  Sun, 01 Jul 2018 12:35:56 +0200

@@ -1,0 +1,14 @@
+Source: libpam-sss-domain
+Priority: optional
+Maintainer: Stefan Haller <stefan.haller@agdsn.de>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Section: utils
+Homepage: https://github.com/fgrsnau/pam_sss_domain
+Vcs-Git: https://github.com/fgrsnau/pam_sss_domain
+
+Package: libpam-sss-domain
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Pam module for setting fully qualified auth domain
+ Pam module for setting fully qualified auth domain.
