@@ -8,7 +8,7 @@
 #include <security/pam_modules.h>
 #include <security/pam_ext.h>
 
-const char*
+static const char*
 parse_domain(int argc, const char **argv)
 {
 	static const char *prefix = "domain=";
@@ -48,9 +48,50 @@ pam_sm_authenticate(
 		return PAM_SERVICE_ERR;
 	}
 
-	pam_set_item(pamh, PAM_USER, new_username);
+	if (pam_set_item(pamh, PAM_USER, new_username) != PAM_SUCCESS) {
+		pam_syslog(pamh, LOG_ERR, "unable to set PAM_USER to %s", new_username);
+		return PAM_SERVICE_ERR;
+	}
+
 	return PAM_SUCCESS;
 }
+
+
+PAM_EXTERN int
+pam_sm_account_mgmt(
+	pam_handle_t *pamh,
+	int flags,
+	int argc,
+	const char **argv)
+{
+	const char *old_username;
+	pam_get_item(pamh, PAM_USER, (const void**)&old_username);
+
+	if (strstr(old_username, "@")) {
+		pam_syslog(pamh, LOG_NOTICE, "username %s already contains fully qualified auth domain, doing nothing", old_username);
+		return PAM_SUCCESS;
+	}
+
+	const char *domain = parse_domain(argc, argv);
+	if (!domain) {
+		pam_syslog(pamh, LOG_ERR, "domain= option not specified");
+		return PAM_SERVICE_ERR;
+	}
+
+	char new_username[LOGIN_NAME_MAX];
+	if (snprintf(new_username, sizeof(new_username), "%s@%s", old_username, domain) >= sizeof(new_username)) {
+		pam_syslog(pamh, LOG_ERR, "final username larger than LOGIN_NAME_MAX");
+		return PAM_SERVICE_ERR;
+	}
+
+	if (pam_set_item(pamh, PAM_USER, new_username) != PAM_SUCCESS) {
+		pam_syslog(pamh, LOG_ERR, "unable to set PAM_USER to %s", new_username);
+		return PAM_SERVICE_ERR;
+	}
+
+	return PAM_SUCCESS;
+}
+
 
 PAM_EXTERN int
 pam_sm_setcred(
@@ -59,5 +100,5 @@ pam_sm_setcred(
 	int argc,
 	const char **argv)
 {
-	return PAM_SUCCESS;
+	return PAM_CRED_ERR;
 }
